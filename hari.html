@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Story Quiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #551822, #241208);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .slider-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: rgba(20, 2, 2, 0.9);
+        }
+        
+        .slider {
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        .slide {
+            min-width: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            visibility: hidden;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+        }
+        
+        .hearts-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #a70c2d;
+            font-size: 20px;
+            opacity: 0;
+            animation: floatHearts 8s linear infinite;
+        }
+        
+        @keyframes floatHearts {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            color: #7a4d64;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #776065, #2e211a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .photo-frame {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 20px auto 30px;
+            border: 8px solid #a74253;
+            box-shadow: 0 10px 25px rgba(121, 70, 70, 0.15);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.5s;
+        }
+        
+        .photo-frame:hover {
+            transform: scale(1.05);
+        }
+        
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .question-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            z-index: 1;
+            border-left: 5px solid #ff6b8b;
+        }
+        
+        .question-text {
+            color: #444;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .option-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(to right, #ffafbd, #ffc3a0);
+            color: #5a3d2b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(to right, #ff9a9e, #fad0c4);
+        }
+        
+        .option-btn:active {
+            transform: translateY(0);
+        }
+        
+        .option-btn.correct {
+            background: linear-gradient(to right, #56ab2f, #a8e063);
+            color: white;
+            animation: pulse 0.5s;
+        }
+        
+        .option-btn.wrong {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .result-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: none;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .result-message.correct {
+            background-color: rgba(136, 155, 177, 0.15);
+            color: #b5bdb5;
+            display: block;
+        }
+        
+        .result-message.wrong {
+            background-color: rgba(116, 5, 31, 0.15);
+            color: #ff0909;
+            display: block;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .nav-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .next-btn {
+            background: linear-gradient(to right, #332e2f, #88375f);
+            color: white;
+        }
+        
+        .next-btn:hover {
+            background: linear-gradient(to right, #351f13, #632835);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .prev-btn {
+            background: linear-gradient(to right, #5d427a, #3d547c);
+            color: rgb(70, 67, 67);
+        }
+        
+        .prev-btn:hover {
+            background: linear-gradient(to right, #0a1e41, #a8a2ad);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(107, 55, 55, 0.15);
+        }
+        
+        .finish-btn {
+            background: linear-gradient(to right, #56ab2f, #a8e063);
+            color: white;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        
+        .finish-btn:hover {
+            background: linear-gradient(to right, #a8e063, #56ab2f);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #ff6b8b;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+        
+        .love-message {
+            margin-top: 20px;
+            font-style: italic;
+            color: #d63384;
+            text-align: center;
+            font-size: 1.1rem;
+            max-width: 600px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .final-slide {
+            text-align: center;
+        }
+        
+        .final-title {
+            font-size: 3rem;
+            color: #ff6b8b;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .final-message {
+            font-size: 1.3rem;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: #ff6b8b;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .slider-container {
+                border-radius: 15px;
+            }
+            
+            .slide {
+                padding: 25px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .photo-frame {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .final-title {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">5</span>
+        </div>
+        
+        <div class="hearts-container" id="hearts-container"></div>
+        
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <div class="header">
+                <h1><i class="fas fa-heart"></i> Our Love Story <i class="fas fa-heart"></i></h1>
+                <p>MY DEAR JANUU🤍</p>
+            </div>
+            
+            <div class="photo-frame">
+                <!-- Replace with your friend's photo -->
+                <img src="HARI.jpeg">
+            </div>
+            
+            <div class="question-container">
+                <p class="question-text">MY DEAR GIRL </p>
+            </div>
+            
+            <div class="love-message">
+                "ENJOY EVERY MOMENT WITH ME ""
+            </div>
+            
+            <button class="next-btn nav-btn" onclick="nextSlide()">Begin Our Journey <i class="fas fa-arrow-right"></i></button>
+        </div>
+        
+        <!-- Slide 2: First memory question -->
+        <div class="slide">    
+            <div class="photo-frame">
+                <!-- Replace with your friend's photo -->
+                <img src="hariah.jpg.jpeg">
+            </div>
+            
+            <div class="question-container">
+                <p class="question-text">WHERE THE PHOTO WAS TAKEN</p>
+                <div class="options-container">
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"ECE LAB"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, true)">"MECH LAB"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"EEPL LAB"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"ROBOTICS LAB"</button>
+                </div>
+            </div>
+            
+            <div class="result-message" id="result-1"></div>
+            
+            <div class="love-message">
+                "THE MOMENT VERYY PRECIOS LA🤗"
+            </div>
+            
+            <div class="navigation">
+                <button class="prev-btn nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="next-btn nav-btn" onclick="nextSlide()">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <!-- Slide 3: Romantic memory question -->
+        <div class="slide">
+            
+            
+            <div class="photo-frame">
+                <!-- Replace with your friend's photo -->
+                <img src="janu.jpg.jpeg">
+            </div>
+            
+            <div class="question-container">
+                <p class="question-text">WHERE THE PHOTO WAS TAKEN</p>
+                <div class="options-container">
+                    <button class="option-btn" onclick="checkAnswer(this, false)">RORBOTICS</button>
+                    <button class="option-btn" onclick="checkAnswer(this, true)"> EEPL LAB</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">ECE</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">MECH LAB</button>
+                </div>
+            </div>
+            
+            <div class="result-message" id="result-2"></div>
+            
+            <div class="love-message">
+                "I was so nervous that night, but you made everything feel so natural and right."
+            </div>
+            
+            <div class="navigation">
+                <button class="prev-btn nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="next-btn nav-btn" onclick="nextSlide()">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <!-- Slide 4: Personal question -->
+        <div class="slide">
+            
+            <div class="question-container">
+                <p class="question-text">NA UNAKE PROPOSE PANNA TIME ENNA</p>
+                <div class="options-container">
+                    <button class="option-btn" onclick="checkAnswer(this, false)">10:40 PM"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"11:30 PM"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, true)">"11:45 PM"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"11:00 PM"</button>
+                </div>
+            </div>
+            
+            <div class="result-message" id="result-3"></div>
+            
+            <div class="love-message">
+                "INTHA MOMENT LA SILA THAYAKAM AND SPL AAVUM IRRUNTHECHIIII"
+            </div>
+            
+            <div class="navigation">
+                <button class="prev-btn nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="next-btn nav-btn" onclick="nextSlide()">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+         <!-- Slide 5: Personal question -->
+        <div class="slide">
+            
+            <div class="question-container">
+                <p class="question-text">NA PROPOSE PANNA DATE ENNA</p>
+                <div class="options-container">
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"15 OCT 2025"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)">"16 OCT 2025</button>
+                    <button class="option-btn" onclick="checkAnswer(this, true)">"17 OCT 2025"</button>
+                    <button class="option-btn" onclick="checkAnswer(this, false)"> "18 OCT 2025</button>
+                </div>
+            </div>
+            
+            <div class="result-message" id="result-3"></div>
+            
+            <div class="love-message">
+                "THE UN FORGATABLE DATE FOR ME"
+            </div>
+            
+            <div class="navigation">
+                <button class="prev-btn nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button class="next-btn nav-btn" onclick="nextSlide()">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        
+        <!-- Slide 6: Final romantic slide -->
+        <div class="slide final-slide">
+            <div class="header">
+                <h1 class="final-title">You Completed Our Love Quiz!</h1>
+            </div>
+            
+            <div class="photo-frame">
+                <!-- Replace with your friend's photo -->
+                <img src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Happy couple">
+            </div>
+            
+            <div class="final-message">
+                <P> HEYYY MY DEAR JANUUU ARE YOU READY FOR MY 2026 VELANTINE </B> IM WAINTG FOR OUR VELANTINE WITH FULL OF LOVE 
+                </P>
+                <p style="font-size: 1.8rem; color: #df0837; margin: 20px 0;">I love you more than words can express.</p>
+            </div>
+            
+            <div class="love-message">
+                'THANK YOU FOR LOVING ME AND BEING WITH MEE '
+            </div>
+            
+            <div class="signature"> I LOVE YOU DI MY DEAR PONDATIIIIII</div>
+            
+            <button class="finish-btn nav-btn" onclick="restartQuiz()"><i class="fas fa-redo"></i>END </button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const heartsContainer = document.getElementById('hearts-container');
+        const currentSlideElement = document.getElementById('current-slide');
+        const totalSlidesElement = document.getElementById('total-slides');
+        
+        // Initialize slide counter
+        totalSlidesElement.textContent = totalSlides;
+        updateSlideCounter();
+        
+        // Create floating hearts
+        function createHearts() {
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '<i class="fas fa-heart"></i>';
+                
+                // Random position and animation delay
+                const leftPos = Math.random() * 100;
+                const delay = Math.random() * 8;
+                const size = Math.random() * 20 + 15;
+                
+                heart.style.left =`${leftPos}%`;
+                heart.style.animationDelay =`${delay}s`;
+                heart.style.fontSize =`${size}px`;
+                
+                heartsContainer.appendChild(heart);
+            }
+        }
+        
+        // Update slide counter
+        function updateSlideCounter() {
+            currentSlideElement.textContent = currentSlide + 1;
+        }
+        
+        // Move to next slide
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                // Hide current slide
+                slides[currentSlide].classList.remove('active');
+                
+                // Show next slide
+                currentSlide++;
+                slides[currentSlide].classList.add('active');
+                
+                updateSlideCounter();
+            }
+        }
+        
+        // Move to previous slide
+        function prevSlide() {
+            if (currentSlide > 0) {
+                // Hide current slide
+                slides[currentSlide].classList.remove('active');
+                
+                // Show previous slide
+                currentSlide--;
+                slides[currentSlide].classList.add('active');
+                
+                updateSlideCounter();
+            }
+        }
+        
+        // Check answer and provide feedback
+        function checkAnswer(button, isCorrect) {
+            const slideIndex = currentSlide;
+            const resultElement = document.getElementById(`result-${slideIndex}`);
+            const allButtons = button.parentElement.querySelectorAll('.option-btn');
+            
+            // Disable all buttons after selection
+            allButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.style.cursor = 'not-allowed';
+            });
+            
+            if (isCorrect) {
+                button.classList.add('correct');
+                resultElement.textContent = "That's right! You remember it perfectly. 💖";
+                resultElement.classList.add('correct');
+            } else {
+                button.classList.add('wrong');
+                resultElement.textContent = "Close, but not quite. The correct answer was more romantic! 😊";
+                resultElement.classList.add('wrong');
+                
+                // Highlight the correct answer
+                allButtons.forEach(btn => {
+                    if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('true')) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show result message
+            resultElement.style.display = 'block';
+            
+            // Create celebratory hearts for correct answer
+            if (isCorrect) {
+                createCelebrationHearts(button);
+            }
+        }
+        
+        // Create celebration hearts
+        function createCelebrationHearts(element) {
+            const rect = element.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart');
+                heart.innerHTML = '<i class="fas fa-heart"></i>';
+                heart.style.position = 'fixed';
+                heart.style.left =`${x}px`;
+                heart.style.top =`${y}px`;
+                heart.style.zIndex = '1000';
+                heart.style.fontSize = '20px';
+                heart.style.color = '#ff6b8b';
+                
+                // Random animation
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 2 + Math.random() * 3;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                document.body.appendChild(heart);
+                
+                let posX = x;
+                let posY = y;
+                let opacity = 1;
+                
+                const animateHeart = () => {
+                    posX += vx;
+                    posY += vy;
+                    opacity -= 0.02;
+                    
+                    heart.style.left =`${posX}px`;
+                    heart.style.top =`${posY}px`;
+                    heart.style.opacity = opacity;
+                    
+                    if (opacity > 0) {
+                        requestAnimationFrame(animateHeart);
+                    } else {
+                        document.body.removeChild(heart);
+                    }
+                };
+                
+                requestAnimationFrame(animateHeart);
+            }
+        }
+        
+        // Restart the quiz
+        function restartQuiz() {
+            // Reset all answer states
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                btn.disabled = false;
+                btn.style.cursor = 'pointer';
+            });
+            
+            // Hide all result messages
+            document.querySelectorAll('.result-message').forEach(msg => {
+                msg.style.display = 'none';
+                msg.classList.remove('correct', 'wrong');
+            });
+            
+            // Go back to first slide
+            slides[currentSlide].classList.remove('active');
+            currentSlide = 0;
+            slides[currentSlide].classList.add('active');
+            updateSlideCounter();
+            
+            // Scroll to top
+            document.querySelector('.slider-container').scrollTop = 0;
+        }
+        
+        // Initialize the page
+        window.onload = function() {
+            createHearts();
+        };
+    </script>
+</body>
+</html> 
